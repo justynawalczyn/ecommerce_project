@@ -13,7 +13,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17  # Use PostgreSQL 17 to match your local setup
+        image: postgres:17  # ✅ Using PostgreSQL 17 
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -36,17 +36,18 @@ jobs:
           sudo apt-get install -y postgresql-client
           pip install dbt-postgres
 
-      - name: Check PostgreSQL Version
-        run: psql -h localhost -U postgres -d ecommerce_db -c "SELECT version();"
-
       - name: Wait for PostgreSQL to be ready
         run: |
           for i in {1..30}; do
             pg_isready -h localhost -p 5432 -U postgres && break
-            echo "Database is not ready yet..."
-            sleep 3
+            echo "Waiting for database..."
+            sleep 2
           done
-          echo "Database is ready!"
+
+      - name: Check PostgreSQL Version
+        env:
+          PGPASSWORD: postgres  # ✅ Pass the password explicitly
+        run: psql -h localhost -U postgres -d ecommerce_db -c "SELECT version();"
 
       - name: Create dbt profiles directory
         run: mkdir -p ~/.dbt
@@ -65,8 +66,7 @@ jobs:
           echo "      dbname: ecommerce_db" >> ~/.dbt/profiles.yml
           echo "      schema: public" >> ~/.dbt/profiles.yml
 
-      - name: Debug dbt Connection
-        run: dbt debug --profiles-dir ~/.dbt
-
       - name: Run dbt
+        env:
+          PGPASSWORD: postgres  # ✅ Ensure dbt can access PostgreSQL
         run: dbt run --profiles-dir ~/.dbt
