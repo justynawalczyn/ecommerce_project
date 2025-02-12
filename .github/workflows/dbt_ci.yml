@@ -18,12 +18,18 @@ jobs:
       - name: Install dbt
         run: pip install dbt-postgres
 
+      - name: Debug – Check Home Directory
+        run: ls -la /home/runner/
+
       - name: Create dbt profiles directory
-        run: mkdir -p ~/.dbt
+        run: mkdir -p /home/runner/.dbt
+
+      - name: Debug – Check if .dbt Exists
+        run: ls -la /home/runner/
 
       - name: Generate dbt profiles.yml
         run: |
-          cat << EOF > ~/.dbt/profiles.yml
+          cat << EOF > /home/runner/.dbt/profiles.yml
           ecommerce_project:
             target: dev
             outputs:
@@ -37,8 +43,8 @@ jobs:
                 schema: public
           EOF
 
-      - name: Verify profiles.yml
-        run: cat ~/.dbt/profiles.yml  # Sprawdzenie, czy plik istnieje
+      - name: Debug – Check profiles.yml
+        run: cat /home/runner/.dbt/profiles.yml
 
       - name: Run dbt
-        run: dbt run --profiles-dir ~/.dbt
+        run: dbt run --profiles-dir /home/runner/.dbt
