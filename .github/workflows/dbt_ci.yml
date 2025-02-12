@@ -38,3 +38,4 @@ jobs:
 
       - name: Run dbt Locally
         run: dbt run --profiles-dir ~/.dbt
+
