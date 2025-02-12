@@ -23,17 +23,22 @@ jobs:
 
       - name: Generate dbt profiles.yml
         run: |
-          echo "ecommerce_project:" > ~/.dbt/profiles.yml
-          echo "  target: dev" >> ~/.dbt/profiles.yml
-          echo "  outputs:" >> ~/.dbt/profiles.yml
-          echo "    dev:" >> ~/.dbt/profiles.yml
-          echo "      type: postgres" >> ~/.dbt/profiles.yml
-          echo "      host: ${{ secrets.DB_HOST }}" >> ~/.dbt/profiles.yml
-          echo "      user: ${{ secrets.DB_USER }}" >> ~/.dbt/profiles.yml
-          echo "      password: ${{ secrets.DB_PASSWORD }}" >> ~/.dbt/profiles.yml
-          echo "      port: 5432" >> ~/.dbt/profiles.yml
-          echo "      dbname: ${{ secrets.DB_NAME }}" >> ~/.dbt/profiles.yml
-          echo "      schema: public" >> ~/.dbt/profiles.yml
+          cat << EOF > ~/.dbt/profiles.yml
+          ecommerce_project:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                host: ${{ secrets.DB_HOST }}
+                user: ${{ secrets.DB_USER }}
+                password: ${{ secrets.DB_PASSWORD }}
+                port: 5432
+                dbname: ${{ secrets.DB_NAME }}
+                schema: public
+          EOF
+
+      - name: Verify profiles.yml
+        run: cat ~/.dbt/profiles.yml  # Sprawdzenie, czy plik istnieje
 
       - name: Run dbt
         run: dbt run --profiles-dir ~/.dbt
