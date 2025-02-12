@@ -1,45 +1,40 @@
-name: Run dbt Models
+name: Run dbt Models Locally
 
 on:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: '0 6 * * *'  # Runs daily at 6 AM UTC
+  workflow_dispatch:  # Only runs manually
 
 jobs:
   dbt-run:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Runs on your local machine instead of GitHub Actions
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Install dependencies (Only if needed)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-          pip install dbt-postgres
+          echo "Ensure PostgreSQL and dbt are installed locally."
+          echo "Skip installation if already set up."
 
       - name: Create dbt profiles directory
         run: mkdir -p ~/.dbt
 
-      - name: Generate dbt profiles.yml
+      - name: Generate dbt profiles.yml (for local setup)
         run: |
           echo "ecommerce_project:" > ~/.dbt/profiles.yml
           echo "  target: dev" >> ~/.dbt/profiles.yml
           echo "  outputs:" >> ~/.dbt/profiles.yml
           echo "    dev:" >> ~/.dbt/profiles.yml
           echo "      type: postgres" >> ~/.dbt/profiles.yml
-          echo "      host: ${{ secrets.DB_HOST }}" >> ~/.dbt/profiles.yml
-          echo "      user: ${{ secrets.DB_USER }}" >> ~/.dbt/profiles.yml
-          echo "      password: ${{ secrets.DB_PASSWORD }}" >> ~/.dbt/profiles.yml
-          echo "      port: ${{ secrets.DB_PORT }}" >> ~/.dbt/profiles.yml
-          echo "      dbname: ${{ secrets.DB_NAME }}" >> ~/.dbt/profiles.yml
+          echo "      host: localhost" >> ~/.dbt/profiles.yml
+          echo "      user: postgres" >> ~/.dbt/profiles.yml
+          echo "      password: my_local_password" >> ~/.dbt/profiles.yml  # Change this to your local password
+          echo "      port: 5432" >> ~/.dbt/profiles.yml
+          echo "      dbname: ecommerce_db" >> ~/.dbt/profiles.yml
           echo "      schema: public" >> ~/.dbt/profiles.yml
 
-      - name: Skip Connection Test (Local PostgreSQL)
+      - name: Skip Connection Test (Running Locally)
         run: echo "Skipping connection test since DB is local."
 
-      - name: Run dbt
+      - name: Run dbt Locally
         run: dbt run --profiles-dir ~/.dbt
