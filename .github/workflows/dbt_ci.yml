@@ -1,6 +1,5 @@
 name: Run dbt Models
 
-
 on:
   push:
     branches:
